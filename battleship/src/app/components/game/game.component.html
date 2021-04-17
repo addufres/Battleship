@@ -48,10 +48,9 @@
         </div>
         <div class="form-group">
         <label for="coordinate">Coordinate (A0 = Top Right, J9 = Bottom Left)</label>
-        <input type="text" class="form-control" id="coordinate"
-                required
-                [(ngModel)]="setupModel.coordinate" name="coordinate"
-                #coordinate="ngModel">
+        <input type="text" class="form-control"  id="typeahead-basic coordinate" 
+                required [(ngModel)]="setupModel.coordinate"
+                name="coordinate" #coordinate="ngModel" [ngbTypeahead]="search"/>
         </div>
         <div class="form-group">
         <label for="direction">Direction</label>

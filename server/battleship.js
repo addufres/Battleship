@@ -1,11 +1,16 @@
+/** PRIMARY IMPORT STATEMENTS */
 const express = require('express')
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const helper = require('./helper');
-
+/** EXPRESS AND APP STARTUP */
 const app = express()
 const port = 3000
-
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.listen(port, () => console.log(`Hello world app listening on port ${port}!`));
+/** GLOBAL VARIABLES */
 let game;
 let currentGame;
 let phase;
@@ -265,14 +270,12 @@ let player2Grid = [
     {"tile":"J9","marked":false,"hit":null,"direction":null,"ship":null},
 ]
 
+/** PRIMARY API FUNCTIONS */
 
-app.use(cors());
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
-
-// TESTED IN POSTMAN
+/** POST new game creation
+ * @returns json object containing information for session_id, phase, and player_one
+ * Tested end to end and in Postman
+ */
 app.post('/games/new', (req, res) => {
     players.player1 = req.body.player1;
     players.player2 = req.body.player2;
@@ -287,11 +290,21 @@ app.post('/games/new', (req, res) => {
     res.send({"session_id":game.session_id,"phase":currentGame.phase,"player":currentGame.players.player1});
 });
 
-// TESTED IN POSTMAN
+/** GET contents of current game
+ * @returns json object of currentGame variable i.e phase, player list
+ * Tested in Postman
+ */
 app.get('/games/:session_id', (req, res) => {
     res.json(currentGame);
 });
 
+/** POST setup board 
+ * Alternating post calls from each player to submit request for placement of ship.
+ * Will take in a coordinate, direction, player, ship, and session_id.
+ * @returns placed, next_player, phase if setup is continuing
+ * @returns phase, player if setup is complete
+ * IN PROGRESS OF COMPLETION
+ */
 app.post('/games/:session_id/setup', (req, res) => {
     // set local function fields to utilize throughout setup
     const sessionId = req.params.session_id;
@@ -424,20 +437,5 @@ app.post('/games/:session_id/setup', (req, res) => {
     }
 });
 
-// app.get('/games/:session_id/setup', (req, res) => {
-//     // reading isbn from the URL
-//     const isbn = req.params.isbn;
 
-//     // searching books for the isbn
-//     for (let book of books) {
-//         if (book.isbn === isbn) {
-//             res.json(book);
-//             return;
-//         }
-//     }
 
-//     // sending 404 when not found something is a good practice
-//     res.status(404).send('Book not found');
-// });
-
-app.listen(port, () => console.log(`Hello world app listening on port ${port}!`));
