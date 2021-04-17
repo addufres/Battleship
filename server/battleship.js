@@ -295,11 +295,10 @@ app.get('/games/:session_id', (req, res) => {
 app.post('/games/:session_id/setup', (req, res) => {
     // set local function fields to utilize throughout setup
     const sessionId = req.params.session_id;
-    const setup = req.body;
-    const coordinate = setup.coordinate;
-    const direction = setup.direction;
-    const player = setup.player;
-    const ship = setup.ship;
+    const coordinate = req.body.coordinate;
+    const direction = req.body.direction;
+    const player = req.body.player;
+    const ship = req.body.ship;
     const column = coordinate.charAt(0).toUpperCase().match(/[A-J]/g);
     let colCondition = false;
     const row = coordinate.charAt(1).match(/[0-9]/g);
@@ -373,7 +372,7 @@ app.post('/games/:session_id/setup', (req, res) => {
                     res.send({"placed": false, "next_player": players.player2, "phase": "setup"});
                 } else {
                     turn = "player_one";
-                    res.send({"placed": false, "next_player": players.player1, "phase": "setup"}); //unable to place try again
+                    res.send({"placed": false, "next_player": players.player1, "phase": "setup"});
                 }
             } else { // it will fit facing right so perform logic to add ship to board and remove from pile
                 console.log(`Player ${player}...
