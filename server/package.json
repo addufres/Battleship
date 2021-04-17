@@ -1,0 +1,23 @@
+{
+  "name": "battleship",
+  "version": "1.0.0",
+  "description": "battleship clone",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/addufres/Battleship.git"
+  },
+  "author": "Andrew Dufresne",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/addufres/Battleship/issues"
+  },
+  "homepage": "https://github.com/addufres/Battleship#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  }
+}

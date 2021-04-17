@@ -1,0 +1,84 @@
+<!-- CREATE GAME FORM -->
+<div class="container">
+    <div *ngIf="!created">
+      <h1>Create Game</h1>
+      <form (ngSubmit)="onSubmit()" #createGame="ngForm">
+        <div class="form-group">
+          <label for="player1">Player 1</label>
+          <input type="text" class="form-control" id="player1"
+                 required
+                 [(ngModel)]="createModel.player1" name="player1"
+                 #player1="ngModel">
+        </div>
+  
+        <div class="form-group">
+          <label for="player2">Player 2</label>
+          <input type="text" class="form-control" id="player2"
+                 required
+                 [(ngModel)]="createModel.player2" name="player2"
+                 #player2="ngModel">
+        </div>
+  
+        <button type="submit" class="btn btn-success" [disabled]="!createGame.form.valid">Submit</button>
+      </form>
+    </div>
+</div>
+  
+<!-- SETUP GAME FORM -->
+<div class="container" *ngIf="(created && setup)|| inPlay">
+    <div>Successfully created game with Session ID: {{game.session_id}}</div>
+    <div>{{game.player}}'s Turn to place a ship.</div>
+    <div>Select a ship and grid</div>
+    <form (ngSubmit)="onSubmitSetup()" #setupGame="ngForm">
+        <div class="form-group" *ngIf="game.player == players[1]">
+        <label for="ship">Ship</label>
+        <select class="form-control"  id="ship"
+            required
+            [(ngModel)]="setupModel.ship" name="ship">
+            <option *ngFor="let ship of player1ships" [value]="ship">{{ship}}</option>
+        </select>
+        </div>
+        <div class="form-group" *ngIf="game.player == players[2]">
+        <label for="ship">Ship</label>
+        <select class="form-control"  id="ship"
+            required
+            [(ngModel)]="setupModel.ship" name="ship">
+            <option *ngFor="let ship of player2ships" [value]="ship">{{ship}}</option>
+        </select>
+        </div>
+        <div class="form-group">
+        <label for="coordinate">Coordinate (A0 = Top Right, J9 = Bottom Left)</label>
+        <input type="text" class="form-control" id="coordinate"
+                required
+                [(ngModel)]="setupModel.coordinate" name="coordinate"
+                #coordinate="ngModel">
+        </div>
+        <div class="form-group">
+        <label for="direction">Direction</label>
+        <select class="form-control"  id="direction"
+            required
+            [(ngModel)]="setupModel.direction" name="direction">
+            <option *ngFor="let dir of directions" [value]="dir">{{dir}}</option>
+        </select>
+        </div>
+
+        <button type="submit" class="btn btn-success" [disabled]="!setupGame.form.valid">Submit</button>
+    </form> 
+
+</div>
+
+<div class="container" *ngIf="inPlay || created">
+    <h3>Player 1: {{players[1]}}</h3>
+    <ul>
+        <li *ngFor="let move of player1moves">
+            <p>SHIP: {{move.ship}} &nbsp; LOCATION: {{move.coordinate}} &nbsp; DIRECTION: {{move.direction}} &nbsp; PLACED: {{move.placed}}</p>
+        </li>
+    </ul>
+
+    <h3>Player 2: {{players[2]}}</h3>
+    <ul>
+        <li *ngFor="let move of player2moves">
+            <p>SHIP: {{move.ship}} &nbsp; LOCATION: {{move.coordinate}} &nbsp; DIRECTION: {{move.direction}} &nbsp; PLACED: {{move.placed}}</p>
+        </li>
+    </ul>
+</div>
