@@ -330,17 +330,7 @@ app.post('/games/:session_id/setup', (req, res) => {
             // convert alpha to numeric on the columns for comparison
             let col = helper.convertAlphaToNumeric(coordinate.charAt(0), 0);
             if(col + length > 10) { // column location plus length of ship is wider than grid
-                console.log(`Player ${player}...
-                             chose coordinate ${coordinate}...
-                             with ship ${ship} facing ${direction}
-                             This does not fit here it is the next player's turn...`)
-                if(player === players.player1) {
-                    turn = "player_two"
-                    res.send({"placed": false, "next_player": players.player2, "phase": "setup"});
-                } else {
-                    turn = "player_one";
-                    res.send({"placed": false, "next_player": players.player1, "phase": "setup"}); //unable to place try again
-                }
+                helper.outOfBounds(player, players, coordinate, ship, direction, turn, res);
             } else { // it will fit facing right so perform logic to add ship to board and remove from pile
                 console.log(`Player ${player}...
                         chose coordinate ${coordinate}...
@@ -363,17 +353,7 @@ app.post('/games/:session_id/setup', (req, res) => {
             // convert numeric string to number on the rows for comparison
             let numericRow = helper.convertNumericStringToNumber(coordinate.charAt(1), 0);
             if(numericRow + length > 10) { // column location plus length of ship is wider than grid
-                console.log(`Player ${player}...
-                             chose coordinate ${coordinate}...
-                             with ship ${ship} facing ${direction}
-                             This does not fit here it is the next player's turn...`)
-                if(player === players.player1) {
-                    turn = "player_two"
-                    res.send({"placed": false, "next_player": players.player2, "phase": "setup"});
-                } else {
-                    turn = "player_one";
-                    res.send({"placed": false, "next_player": players.player1, "phase": "setup"});
-                }
+                helper.outOfBounds(player, players, coordinate, ship, direction, turn, res);
             } else { // it will fit facing right so perform logic to add ship to board and remove from pile
                 console.log(`Player ${player}...
                         chose coordinate ${coordinate}...

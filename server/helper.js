@@ -63,3 +63,17 @@ exports.handleShips = (res, column, row, coordinate, ship, playerGrid, playerShi
         }
     }
 }
+
+exports.outOfBounds = (player, players, coordinate, ship, direction, turn, res) => {
+    console.log(`Player ${player}...
+                chose coordinate ${coordinate}...
+                with ship ${ship} facing ${direction}
+                This does not fit here it is the next player's turn...`)
+    if(player === players.player1) {
+        turn = "player_two"
+        res.send({"placed": false, "next_player": players.player2, "phase": "setup"});
+    } else {
+        turn = "player_one";
+        res.send({"placed": false, "next_player": players.player1, "phase": "setup"}); //unable to place try again
+    }
+}
