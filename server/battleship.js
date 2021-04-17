@@ -298,6 +298,16 @@ app.get('/games/:session_id', (req, res) => {
     res.json(currentGame);
 });
 
+app.get('/games/grid/:player',(req, res) =>{
+    if(req.params.player === 1)res.json(player1Grid)
+    else res.json(player2Grid)
+})
+
+app.get('/games/ships/:player',(req, res) =>{
+    if(req.params.player === 1)res.json(player1Ships)
+    else res.json(player1Ships)
+})
+
 /** POST setup board 
  * Alternating post calls from each player to submit request for placement of ship.
  * Will take in a coordinate, direction, player, ship, and session_id.
@@ -345,53 +355,94 @@ app.post('/games/:session_id/setup', (req, res) => {
             if(col + length > 10) { // column location plus length of ship is wider than grid
                 helper.outOfBounds(player, players, coordinate, ship, direction, turn, res);
             } else { // it will fit facing right so perform logic to add ship to board and remove from pile
-                console.log(`Player ${player}...
-                        chose coordinate ${coordinate}...
-                        with ship ${ship} facing ${direction}`)
+                console.log(`Player ${player}...chose coordinate ${coordinate}...with ship ${ship} facing ${direction}`)
                 if(player === players.player1) {
                     console.log(`Player 1 has ${player1Ships.length} ships left in their shipyard.`)
                     if(player1Ships.length > 0) {
                         console.log(`Performing search on ${player}'s grid for the chosen coordinate`);
-                        helper.handleShips(res, column, row, coordinate, ship, player1Grid, player1Ships, players, player)
-                    }
-                } else {
-                    console.log(`Player 2 has ${player2Ships.length} ships left in their shipyard.`)
-                    if(player2Ships.length > 0) {
-                        console.log(`Performing search on ${player}'s grid for the chosen coordinate`);
-                        helper.handleShips(res, column, row, coordinate, ship, player2Grid, player2Ships, players, player)
-                    }
-                }
-            }
-        } else {
-            // convert numeric string to number on the rows for comparison
-            let numericRow = helper.convertNumericStringToNumber(coordinate.charAt(1), 0);
-            if(numericRow + length > 10) { // column location plus length of ship is wider than grid
-                helper.outOfBounds(player, players, coordinate, ship, direction, turn, res);
-            } else { // it will fit facing right so perform logic to add ship to board and remove from pile
-                console.log(`Player ${player}...
-                        chose coordinate ${coordinate}...
-                        with ship ${ship} facing ${direction}`)
-                if(player === players.player1) {
-                    console.log(`Player 1 has ${player1Ships.length} ships left in their shipyard.`)
-                    if(player1Ships.length > 0) {
-                        console.log(`Performing search on ${player}'s grid for the chosen coordinate`);
-                        for(let key = 0; key<player1Grid.length; key++) {
+                        a: for(let key = 0; key<100; key++) {
                             console.log(`Comparing ${player1Grid[key].tile} against ${column[0]}${row[0]} and ${player1Grid[key].marked}`)
-                            if(player1Grid[key].tile === ""+column[0]+row[0]+"" && player1Grid[key].marked == false) {
+                            if(player1Grid[key].tile === ""+column[0]+row[0]+"") {
                                 console.log(`Found selected coordinate: ${coordinate} at key tile: ${player1Grid[key].tile} and it is available.`);
-                                player1Grid[key].marked = true;
+                                // check for any collisions in the path
+                                if(direction === "right") {
+                                    let localKey = key;
+                                    // get the length of ship
+                                    // then set marked true to each of the tiles up to 1 less then length of ship from where starting tile is
+                                    // so if length of ship is 3 we are at tile A1 we should set the next 2 10 over B1 and C1
+                                    // if any are marked true already send a response back for failure to place
+                                    for(let i = 0; i < length; i++) {
+                                        console.log("in shiplength for loop marking grid")
+                                        // if its already marked and matches ship return res and break
+                                        if(player1Grid[localKey].marked === true && player1Grid[localKey].ship === ship) {
+                                            if(player === players.player2) {
+                                                turn = "player_one";
+                                                res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                                break a;
+                                            } else {
+                                                turn = "player_two";
+                                                res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                                break a;
+                                            }
+                                        }
+                                        console.log("marking "+ player1Grid[localKey].tile + " ")
+                                        objIndex = player1Grid.findIndex((obj => obj.tile == player1Grid[localKey].tile))
+                                        player1Grid.forEach(el => {
+                                            if(el.tile == player1Grid[localKey].tile) {
+                                                player1Grid[objIndex].marked = true;
+                                                player1Grid[objIndex].direction = "down";
+                                                player1Grid[objIndex].ship = ship;
+                                                localKey+=10;
+                                            }
+                                        })
+                                        continue;
+                                    }
+                                } else {
+                                    let localKey = key;
+                                    for(let i = 0; i < length; i++) {
+                                        // if its already marked and matches ship return res and break
+                                        if(player1Grid[localKey].marked === true && player1Grid[localKey].ship === ship) {
+                                            if(player === players.player2) {
+                                                turn = "player_one";
+                                                res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                                break a;
+                                            } else {
+                                                turn = "player_two";
+                                                res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                                break a;
+                                            }
+                                        }
+                                        console.log("marking "+ player1Grid[localKey].tile + " ")
+                                        objIndex = player1Grid.findIndex((obj => obj.tile == player1Grid[localKey].tile))
+                                        player1Grid.forEach(el => {
+                                            if(el.tile == player1Grid[localKey].tile) {
+                                                player1Grid[objIndex].marked = true;
+                                                player1Grid[objIndex].direction = "down";
+                                                player1Grid[objIndex].ship = ship;
+                                                localKey+=10;
+                                            }
+                                        })
+                                        continue;
+                                    }
+                                }
                                 // remove from ships array for player
                                 player1Ships = player1Ships.filter(s => s.type !== ship);
-                                console.log(`Player 1 has ${player1Ships.length} ships left in their shipyard.`)
+                                console.log(`${player} has ${player1Ships.length} ships left in their shipyard.`)
                                 if(player1Ships.length == 0 && player2Ships.length == 0) {
                                     phase = "play";
                                     turn = "player_one";
                                     res.send({"phase":"play", "player": players.player1})
                                     break;
                                 } else {
-                                    turn = "player_two";
-                                    res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
-                                    break;
+                                    if(player === players.player2) {
+                                        turn = "player_one";
+                                        res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                        break;
+                                    } else {
+                                        turn = "player_two";
+                                        res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -400,23 +451,280 @@ app.post('/games/:session_id/setup', (req, res) => {
                     console.log(`Player 2 has ${player2Ships.length} ships left in their shipyard.`)
                     if(player2Ships.length > 0) {
                         console.log(`Performing search on ${player}'s grid for the chosen coordinate`);
-                        for(let key = 0; key<player2Grid.length; key++) {
+                        a: for(let key = 0; key<100; key++) {
                             console.log(`Comparing ${player2Grid[key].tile} against ${column[0]}${row[0]} and ${player2Grid[key].marked}`)
-                            if(player2Grid[key].tile === ""+column[0]+row[0]+"" && player2Grid[key].marked == false) {
+                            if(player2Grid[key].tile === ""+column[0]+row[0]+"") {
                                 console.log(`Found selected coordinate: ${coordinate} at key tile: ${player2Grid[key].tile} and it is available.`);
-                                player2Grid[key].marked = true;
+                                // check for any collisions in the path
+                                if(direction === "right") {
+                                    let localKey = key;
+                                    // get the length of ship
+                                    // then set marked true to each of the tiles up to 1 less then length of ship from where starting tile is
+                                    // so if length of ship is 3 we are at tile A1 we should set the next 2 10 over B1 and C1
+                                    // if any are marked true already send a response back for failure to place
+                                    for(let i = 0; i < length; i++) {
+                                        console.log("in shiplength for loop marking grid")
+                                        // if its already marked and matches ship return res and break
+                                        if(player2Grid[localKey].marked === true && player2Grid[localKey].ship === ship) {
+                                            if(player === players.player2) {
+                                                turn = "player_one";
+                                                res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                                break a;
+                                            } else {
+                                                turn = "player_two";
+                                                res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                                break a;
+                                            }
+                                        }
+                                        console.log("marking "+ player1Grid[localKey].tile + " ")
+                                        objIndex = player1Grid.findIndex((obj => obj.tile == player1Grid[localKey].tile))
+                                        player1Grid.forEach(el => {
+                                            if(el.tile == player1Grid[localKey].tile) {
+                                                player1Grid[objIndex].marked = true;
+                                                player1Grid[objIndex].direction = "down";
+                                                player1Grid[objIndex].ship = ship;
+                                                localKey+=10;
+                                            }
+                                        })
+                                        continue;
+                                    }
+                                } else {
+                                    let localKey = key;
+                                    for(let i = 0; i < length; i++) {
+                                        // if its already marked and matches ship return res and break
+                                        if(player2Grid[localKey].marked === true && player2Grid[localKey].ship === ship) {
+                                            if(player === players.player2) {
+                                                turn = "player_one";
+                                                res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                                break a;
+                                            } else {
+                                                turn = "player_two";
+                                                res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                                break a;
+                                            }
+                                        }
+                                        console.log("marking "+ player1Grid[localKey].tile + " ")
+                                        objIndex = player1Grid.findIndex((obj => obj.tile == player1Grid[localKey].tile))
+                                        player1Grid.forEach(el => {
+                                            if(el.tile == player1Grid[localKey].tile) {
+                                                player1Grid[objIndex].marked = true;
+                                                player1Grid[objIndex].direction = "down";
+                                                player1Grid[objIndex].ship = ship;
+                                                localKey+=10;
+                                            }
+                                        })
+                                        continue;
+                                    }
+                                }
                                 // remove from ships array for player
                                 player2Ships = player2Ships.filter(s => s.type !== ship);
-                                console.log(`Player 2 has ${player2Ships.length} ships left in their shipyard.`)
+                                console.log(`${player} has ${player2Ships.length} ships left in their shipyard.`)
+                                if(player2Ships.length == 0 && player1Ships.length == 0) {
+                                    phase = "play";
+                                    turn = "player_one";
+                                    res.send({"phase":"play", "player": players.player1})
+                                    break;
+                                } else {
+                                    if(player === players.player2) {
+                                        turn = "player_one";
+                                        res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                        break;
+                                    } else {
+                                        turn = "player_two";
+                                        res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            // convert numeric string to number on the rows for comparison
+            let numericRow = helper.convertNumericStringToNumber(coordinate.charAt(1), 0);
+            if(numericRow + length > 10) { // column location plus length of ship is wider than grid
+                helper.outOfBounds(player, players, coordinate, ship, direction, turn, res);
+            } else { // it will fit facing down so perform logic to add ship to board and remove from pile
+                console.log(`Player ${player}...chose coordinate ${coordinate}...with ship ${ship} facing ${direction}`)
+                if(player === players.player1) {
+                    console.log(`Player 1 has ${player1Ships.length} ships left in their shipyard.`)
+                    if(player1Ships.length > 0) {
+                        console.log(`Performing search on ${player}'s grid for the chosen coordinate`);
+                        a: for(let key = 0; key<100; key++) {
+                            console.log(`Comparing ${player1Grid[key].tile} against ${column[0]}${row[0]}`)
+                            if(player1Grid[key].tile === ""+column[0]+row[0]+"") {
+                                console.log(`Found selected coordinate: ${coordinate} at key tile: ${player1Grid[key].tile} and it is available.`);
+                                // check for any collisions in the path
+                                if(direction === "right") {
+                                    let localKey = key;
+                                    // get the length of ship
+                                    // then set marked true to each of the tiles up to 1 less then length of ship from where starting tile is
+                                    // so if length of ship is 3 we are at tile A1 we should set the next 2 10 over B1 and C1
+                                    // if any are marked true already send a response back for failure to place
+                                    for(let i = 0; i < length; i++) {
+                                        console.log("in shiplength for loop marking grid")
+                                        // if its already marked and matches ship return res and break
+                                        if(player1Grid[localKey].marked === true && player1Grid[localKey].ship === ship) {
+                                            if(player === players.player2) {
+                                                turn = "player_one";
+                                                res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                                break a;
+                                            } else {
+                                                turn = "player_two";
+                                                res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                                break a;
+                                            }
+                                        }
+                                        console.log("marking "+ player1Grid[localKey].tile + " ")
+                                        objIndex = player1Grid.findIndex((obj => obj.tile == player1Grid[localKey].tile))
+                                        player1Grid.forEach(el => {
+                                            if(el.tile == player1Grid[localKey].tile) {
+                                                player1Grid[objIndex].marked = true;
+                                                player1Grid[objIndex].direction = "down";
+                                                player1Grid[objIndex].ship = ship;
+                                                localKey+=10;
+                                            }
+                                        })
+                                        continue;
+                                    }
+                                } else {
+                                    let localKey = key;
+                                    for(let i = 0; i < length; i++) {
+                                        // if its already marked and matches ship return res and break
+                                        if(player1Grid[localKey].marked === true && player1Grid[localKey].ship === ship) {
+                                            if(player === players.player2) {
+                                                turn = "player_one";
+                                                res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                                break a;
+                                            } else {
+                                                turn = "player_two";
+                                                res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                                break a;
+                                            }
+                                        }
+                                        console.log("marking "+ player1Grid[localKey].tile + " ")
+                                        objIndex = player1Grid.findIndex((obj => obj.tile == player1Grid[localKey].tile))
+                                        player1Grid.forEach(el => {
+                                            if(el.tile == player1Grid[objIndex].tile) {
+                                                player1Grid[objIndex].marked = true;
+                                                player1Grid[objIndex].direction = "down";
+                                                player1Grid[objIndex].ship = ship;
+                                                localKey+=10;
+                                            }
+                                        })
+                                        continue;
+                                    }
+                                }
+                                // remove from ships array for player
+                                player1Ships = player1Ships.filter(s => s.type !== ship);
+                                console.log(`${player} has ${player1Ships.length} ships left in their shipyard.`)
                                 if(player1Ships.length == 0 && player2Ships.length == 0) {
                                     phase = "play";
                                     turn = "player_one";
                                     res.send({"phase":"play", "player": players.player1})
                                     break;
                                 } else {
+                                    if(player === players.player2) {
+                                        turn = "player_one";
+                                        res.send({"placed": true, "next_player": players.player1, "phase": "setup", "grid": player1Grid})
+                                        break;
+                                    } else {
+                                        turn = "player_two";
+                                        res.send({"placed": true, "next_player": players.player2, "phase": "setup", "grid": player2Grid})
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    console.log(`Player 2 has ${player2Ships.length} ships left in their shipyard.`)
+                    if(player2Ships.length > 0) {
+                        console.log(`Performing search on ${player}'s grid for the chosen coordinate`);
+                        a: for(let key = 0; key<100; key++) {
+                            console.log(`Comparing ${player2Grid[key].tile} against ${column[0]}${row[0]} and ${player2Grid[key].marked}`)
+                            if(player2Grid[key].tile === ""+column[0]+row[0]+"") {
+                                console.log(`Found selected coordinate: ${coordinate} at key tile: ${player2Grid[key].tile} and it is available.`);
+                                // check for any collisions in the path
+                                if(direction === "right") {
+                                    let localKey = key;
+                                    // get the length of ship
+                                    // then set marked true to each of the tiles up to 1 less then length of ship from where starting tile is
+                                    // so if length of ship is 3 we are at tile A1 we should set the next 2 10 over B1 and C1
+                                    // if any are marked true already send a response back for failure to place
+                                    for(let i = 0; i < length; i++) {
+                                        console.log("in shiplength for loop marking grid")
+                                        // if its already marked and matches ship return res and break
+                                        if(player2Grid[localKey].marked === true && player2Grid[localKey].ship === ship) {
+                                            if(player === players.player2) {
+                                                turn = "player_one";
+                                                res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                                break a;
+                                            } else {
+                                                turn = "player_two";
+                                                res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                                break a;
+                                            }
+                                        }
+                                        console.log("marking "+ player1Grid[localKey].tile + " ")
+                                        objIndex = player1Grid.findIndex((obj => obj.tile == player1Grid[localKey].tile))
+                                        player1Grid.forEach(el => {
+                                            if(el.tile == player1Grid[localKey].tile) {
+                                                player1Grid[objIndex].marked = true;
+                                                player1Grid[objIndex].direction = "down";
+                                                player1Grid[objIndex].ship = ship;
+                                                localKey+=10;
+                                            }
+                                        })
+                                        continue;
+                                    }
+                                } else {
+                                    let localKey = key;
+                                    for(let i = 0; i < length; i++) {
+                                        // if its already marked and matches ship return res and break
+                                        if(player2Grid[localKey].marked === true && player2Grid[localKey].ship === ship) {
+                                            if(player === players.player2) {
+                                                turn = "player_one";
+                                                res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                                break a;
+                                            } else {
+                                                turn = "player_two";
+                                                res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                                break a;
+                                            }
+                                        }
+                                        console.log("marking "+ player1Grid[localKey].tile + " ")
+                                        objIndex = player1Grid.findIndex((obj => obj.tile == player1Grid[localKey].tile))
+                                        player1Grid.forEach(el => {
+                                            if(el.tile == player1Grid[localKey].tile) {
+                                                player1Grid[objIndex].marked = true;
+                                                player1Grid[objIndex].direction = "down";
+                                                player1Grid[objIndex].ship = ship;
+                                                localKey+=10;
+                                            }
+                                        })
+                                        continue;
+                                    }
+                                }
+                                // remove from ships array for player
+                                player2Ships = player2Ships.filter(s => s.type !== ship);
+                                console.log(`${player} has ${player2Ships.length} ships left in their shipyard.`)
+                                if(player2Ships.length == 0 && player1Ships.length == 0) {
+                                    phase = "play";
                                     turn = "player_one";
-                                    res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                    res.send({"phase":"play", "player": players.player1})
                                     break;
+                                } else {
+                                    if(player === players.player2) {
+                                        turn = "player_one";
+                                        res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                                        break;
+                                    } else {
+                                        turn = "player_two";
+                                        res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                                        break;
+                                    }
                                 }
                             }
                         }

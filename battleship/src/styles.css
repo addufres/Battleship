@@ -5,3 +5,36 @@
 .sr-only {
     display: none!important;
 }
+
+.filled {
+    background-color: black!important;
+    width: 40px;
+    height: 40px;
+}
+.grid>div {
+    width: 40px;
+    height: 40px;
+}
+.container {
+    display: flex;
+}
+
+.grid-player1 {
+    width: 400px;
+    height: 400px;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: rgb(114, 114, 156);
+    margin: 20px;
+}
+
+
+
+.grid-player2 {
+    width: 400px;
+    height: 400px;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: rgb(114, 114, 156);
+    margin: 20px;
+}

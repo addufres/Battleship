@@ -30,21 +30,66 @@ exports.convertNumericStringToNumber = (char, row) => {
     return row;
 }
 
-exports.handleShips = (res, column, row, coordinate, ship, playerGrid, playerShips, players, player) => {
-    for(let key = 0; key<playerGrid.length; key++) {
+exports.handleShips = (res, column, row, coordinate, ship, playerGrid, playerShips, nextPlayerShips, players, player, direction, shipLength) => {
+    a: for(let key = 0; key<playerGrid.length; key++) {
         console.log(`Comparing ${playerGrid[key].tile} against ${column[0]}${row[0]} and ${playerGrid[key].marked}`)
-        if(playerGrid[key].tile === ""+column[0]+row[0]+"" && playerGrid[key].marked == false) {
+        if(playerGrid[key].tile === ""+column[0]+row[0]+"") {
             console.log(`Found selected coordinate: ${coordinate} at key tile: ${playerGrid[key].tile} and it is available.`);
             // check for any collisions in the path
+            if(direction === "right") {
+                let localKey = key;
+                // get the length of ship
+                // then set marked true to each of the tiles up to 1 less then length of ship from where starting tile is
+                // so if length of ship is 3 we are at tile A1 we should set the next 2 10 over B1 and C1
+                // if any are marked true already send a response back for failure to place
+                for(let i = 0; i < shipLength; i++) {
+                    console.log("in shiplength for loop marking grid")
+                    // if its already marked and matches ship return res and break
+                    if(playerGrid[localKey].marked === true && playerGrid[localKey].ship === ship) {
+                        if(player === players.player2) {
+                            turn = "player_one";
+                            res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                            break a;
+                        } else {
+                            turn = "player_two";
+                            res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                            break a;
+                        }
+                    } else {
+                        console.log("grid was not marked marking now.. at spot"+playerGrid[localKey])
+                        playerGrid[localKey].marked = true;
+                        playerGrid[localKey].direction = "right";
+                        playerGrid[localKey].ship = ship;
+                        localKey++;
+                    }
+                }
 
-            playerGrid[key].marked = true;
-
-            // update grid with ship and direction info for remaining spaces
-
+            } else {
+                let localKey = key;
+                for(let i = 0; i < shipLength; i++) {
+                    // if its already marked and matches ship return res and break
+                    if(playerGrid[localKey].marked === true && playerGrid[localKey].ship === ship) {
+                        if(player === players.player2) {
+                            turn = "player_one";
+                            res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
+                            break a;
+                        } else {
+                            turn = "player_two";
+                            res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
+                            break a;
+                        }
+                    } else {
+                        playerGrid[localKey].marked = true;
+                        playerGrid[localKey].direction = "down";
+                        playerGrid[localKey].ship = ship;
+                        localKey+=10;
+                    }
+                }
+            }
             // remove from ships array for player
             playerShips = playerShips.filter(s => s.type !== ship);
             console.log(`${player} has ${playerShips.length} ships left in their shipyard.`)
-            if(playerShips.length == 0 && playerShips.length == 0) {
+            if(playerShips.length == 0 && nextPlayerShips.length == 0) {
                 phase = "play";
                 turn = "player_one";
                 res.send({"phase":"play", "player": players.player1})
