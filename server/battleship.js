@@ -298,11 +298,13 @@ app.get('/games/:session_id', (req, res) => {
     res.json(currentGame);
 });
 
+// Test call
 app.get('/games/grid/:player',(req, res) =>{
     if(req.params.player === 1)res.json(player1Grid)
     else res.json(player2Grid)
 })
 
+// Test call
 app.get('/games/ships/:player',(req, res) =>{
     if(req.params.player === 1)res.json(player1Ships)
     else res.json(player1Ships)
@@ -430,5 +432,11 @@ app.post('/games/:session_id/setup', (req, res) => {
     
 });
 
+/**
+ * Request:{“coordinate”:“A0”,“player”:“<player_name>”}
+ * Response:{“result”:“hit|miss|hit_sunk|hit_good_game|not_your_turn|game_over”,“next_player”:“<next_player>”}
+ */
+app.post('/games/:session_id/play', (req, res) => {
 
+})
 

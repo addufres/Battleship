@@ -57,7 +57,7 @@ export class GameComponent implements OnInit {
           "H0","H1","H2","H3","H4","H5","H6","H7","H8","H9",
           "I0","I1","I2","I3","I4","I5","I6","I7","I8","I9",
           "J0","J1","J2","J3","J4","J5","J6","J7","J8","J9",]
-
+  dictionary = ['A','B','C','D','E','F','G','H','I','J']
   constructor(private dataService: DataService) { }
 
   ngOnInit() {
@@ -109,8 +109,14 @@ export class GameComponent implements OnInit {
           this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 1);
           this.player1moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
         } else {
-          this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 2);
-          this.player2moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
+          if(this.player2ships.length === 1) {
+            this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 2, true);
+            this.player2moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: true});
+          } else {
+            this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 2);
+            this.player2moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
+          }
+
         }
         this.setupResponse = data;
         if(this.setupResponse.hasOwnProperty("next_player")|| (this.player1ships.length > 0 && this.player2ships.length > 0)) {
@@ -129,13 +135,6 @@ export class GameComponent implements OnInit {
           this.inPlay = true;
           this.game.phase = this.setupResponse.phase;
           this.game.player = this.setupResponse.player;
-          if(this.game.player === this.players[1]) {
-            this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 1);
-            this.player1moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
-          } else {
-            this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 2);
-            this.player2moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
-          }
         }
       }
     })
@@ -159,56 +158,41 @@ export class GameComponent implements OnInit {
     }
   }
 
-  dictionary = ['A','B','C','D','E','F','G','H','I','J']
-  paintShips(ship: string, coordinate: string, direction: string, placed: boolean, player: number) {
+  paintShips(ship: string, coordinate: string, direction: string, placed: boolean, player: number, final?: boolean) {
     let shipLength = this.getShipLength(ship);
+    let col = coordinate.substr(0,1);
+    let row = coordinate.substr(1);
+    let colIdx = this.dictionary.indexOf(col);
     if(placed) {
-      let col = coordinate.substr(0,1);
-      let row = coordinate.substr(1);
-      let colIdx = this.dictionary.indexOf(col);
       if(player === 1) {
-        if(direction === "down") {// increment id's by ten
-          // loop over length of ship and paint each div for ship a different color
-          for(let i = 0; i < shipLength; i++) {
-            // grab id for coordinate as starting point
-            let shipDivStartingPoint = document.querySelector(`#player1-${this.dictionary[colIdx]}${row}`);
-            shipDivStartingPoint.classList.add('filled');
-            colIdx++;
-          }
-        } else {
-          // loop over length of ship and paint each div for ship a different color
-          for(let i = 0; i < shipLength; i++) {
-            // grab id for coordinate as starting point
-            let shipDivStartingPoint = document.querySelector(`#player1-${this.dictionary[colIdx]}${row}`);
-            shipDivStartingPoint.classList.add('filled');
-            let rowInt = parseInt(row);
-            rowInt++;
-            row = rowInt.toString();
-          }
-        }
+        this.paintPlayerShip(direction, shipLength, colIdx, row, player.toString());
       } else {
-        if(direction === "down") {// increment id's by one
-          // loop over length of ship and paint each div for ship a different color
-          for(let i = 0; i < shipLength; i++) {
-            // grab id for coordinate as starting point
-            let shipDivStartingPoint = document.querySelector(`#player2-${this.dictionary[colIdx]}${row}`);
-            shipDivStartingPoint.classList.add('filled');
-            colIdx++;
-          }
-        } else {
-          // loop over length of ship and paint each div for ship a different color
-          for(let i = 0; i < shipLength; i++) {
-            // grab id for coordinate as starting point
-            let shipDivStartingPoint = document.querySelector(`#player2-${this.dictionary[colIdx]}${row}`);
-            shipDivStartingPoint.classList.add('filled');
-            let rowInt = parseInt(row);
-            rowInt++;
-            row = rowInt.toString();
-          }
-        }
+        this.paintPlayerShip(direction, shipLength, colIdx, row, player.toString());
+      }
+    } else if(final) {
+      this.paintPlayerShip(direction, shipLength, colIdx, row, player.toString());
+    }
+  }
+
+  paintPlayerShip(direction: string, shipLength: number, colIdx: number, row: string, player: string): void {
+    if(direction === "down") {// increment id's by ten
+      // loop over length of ship and paint each div for ship a different color
+      for(let i = 0; i < shipLength; i++) {
+        // grab id for coordinate as starting point
+        let shipDivStartingPoint = document.querySelector(`#player${player}-${this.dictionary[colIdx]}${row}`);
+        shipDivStartingPoint.classList.add('filled');
+        colIdx++;
       }
     } else {
-      return;
+      // loop over length of ship and paint each div for ship a different color
+      for(let i = 0; i < shipLength; i++) {
+        // grab id for coordinate as starting point
+        let shipDivStartingPoint = document.querySelector(`#player${player}-${this.dictionary[colIdx]}${row}`);
+        shipDivStartingPoint.classList.add('filled');
+        let rowInt = parseInt(row);
+        rowInt++;
+        row = rowInt.toString();
+      }
     }
   }
 
