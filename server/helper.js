@@ -31,7 +31,7 @@ exports.convertNumericStringToNumber = (char, row) => {
 }
 
 exports.handleShips = (res, column, row, coordinate, ship, playerGrid, playerShips, nextPlayerShips, players, player, direction, shipLength) => {
-    a: for(let key = 0; key<playerGrid.length; key++) {
+    a: for(let key = 0; key<100; key++) {
         console.log(`Comparing ${playerGrid[key].tile} against ${column[0]}${row[0]} and ${playerGrid[key].marked}`)
         if(playerGrid[key].tile === ""+column[0]+row[0]+"") {
             console.log(`Found selected coordinate: ${coordinate} at key tile: ${playerGrid[key].tile} and it is available.`);
@@ -48,12 +48,10 @@ exports.handleShips = (res, column, row, coordinate, ship, playerGrid, playerShi
                     if(playerGrid[localKey].marked === true && playerGrid[localKey].ship === ship) {
                         if(player === players.player2) {
                             turn = "player_one";
-                            res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
-                            break a;
+                            return [res.send({"placed": true, "next_player": players.player1, "phase": "setup"}), playerShips, playerGrid]
                         } else {
                             turn = "player_two";
-                            res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
-                            break a;
+                            return [res.send({"placed": true, "next_player": players.player2, "phase": "setup"}), playerShips, playerGrid]
                         }
                     } else {
                         console.log("grid was not marked marking now.. at spot"+playerGrid[localKey])
@@ -71,12 +69,10 @@ exports.handleShips = (res, column, row, coordinate, ship, playerGrid, playerShi
                     if(playerGrid[localKey].marked === true && playerGrid[localKey].ship === ship) {
                         if(player === players.player2) {
                             turn = "player_one";
-                            res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
-                            break a;
+                            return [res.send({"placed": true, "next_player": players.player1, "phase": "setup"}), playerShips, playerGrid]
                         } else {
                             turn = "player_two";
-                            res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
-                            break a;
+                            return [res.send({"placed": true, "next_player": players.player2, "phase": "setup"}), playerShips, playerGrid]
                         }
                     } else {
                         playerGrid[localKey].marked = true;
@@ -92,17 +88,14 @@ exports.handleShips = (res, column, row, coordinate, ship, playerGrid, playerShi
             if(playerShips.length == 0 && nextPlayerShips.length == 0) {
                 phase = "play";
                 turn = "player_one";
-                res.send({"phase":"play", "player": players.player1})
-                break;
+                return [res.send({"phase":"play", "player": players.player1}), playerShips, playerGrid]
             } else {
                 if(player === players.player2) {
                     turn = "player_one";
-                    res.send({"placed": true, "next_player": players.player1, "phase": "setup"})
-                    break;
+                    return [res.send({"placed": true, "next_player": players.player1, "phase": "setup"}), playerShips, playerGrid]
                 } else {
                     turn = "player_two";
-                    res.send({"placed": true, "next_player": players.player2, "phase": "setup"})
-                    break;
+                    return [res.send({"placed": true, "next_player": players.player2, "phase": "setup"}), playerShips, playerGrid]
                 }
             }
         }

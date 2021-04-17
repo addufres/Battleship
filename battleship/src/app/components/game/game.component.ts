@@ -20,6 +20,28 @@ export class GameComponent implements OnInit {
   player1ships = ["carrier","battleship","cruiser","submarine","destroyer"];
   player2ships = ["carrier","battleship","cruiser","submarine","destroyer"];
   directions = ["down", "right"];
+  shipDirections = {
+      carrier: {
+        right: [0, 1, 2, 3, 4],
+        down: [0, 10, 20, 30, 40]
+      },
+      battleship: {
+        right: [0, 1, 2, 3],
+        down: [0, 10, 20, 30]
+      },
+      cruiser: {
+        right: [0, 1, 2],
+        down: [0, 10, 20]
+      },
+      submarine: {
+        right: [0, 1, 2],
+        down: [0, 10, 20]
+      },
+      destroyer: {
+        right: [0, 1],
+        down: [0, 10]
+      },
+    }
   setupResponse: any;
   player1moves = [];
   player2moves = [];
@@ -68,6 +90,18 @@ export class GameComponent implements OnInit {
 
   setupPlayer(model: any) {
     model.player = this.game.player;
+    console.log(this.player1board)
+    console.log(this.player2board)
+    console.log(model)
+    console.log(this.shipDirections[model.ship][model.direction])
+    const currDir = this.shipDirections[model.ship][model.direction]
+    let filled;
+    let currentSpot = this.grid.indexOf(model.coordinate);
+    if(model.player === this.players[1]) filled = currDir.some(index => this.player1board[currentSpot+index].classList.contains('filled'))
+    else filled = currDir.some(index => this.player2board[currentSpot+index].classList.contains('filled'))
+    if(filled) {
+      model.coordinate = "XX";
+    }
     this.dataService.postSetup(model, this.game.session_id).subscribe(data => {
       if(data) {
         console.log(data)
@@ -95,6 +129,13 @@ export class GameComponent implements OnInit {
           this.inPlay = true;
           this.game.phase = this.setupResponse.phase;
           this.game.player = this.setupResponse.player;
+          if(this.game.player === this.players[1]) {
+            this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 1);
+            this.player1moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
+          } else {
+            this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 2);
+            this.player2moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
+          }
         }
       }
     })
