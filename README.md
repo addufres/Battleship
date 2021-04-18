@@ -37,6 +37,7 @@ Simple node Battleship Clone
 4. CSS is not up to snuff for my taste or any actual business shipment of code
     - Given time constraints I set my sights on functionality and not prettiness
     - I don't necessarily consider this a bug but rather more of a UI/UX issue. Still worth taking a look at and if this was a work condition it would be logged in a ticket and fixed before release.
+5. Sometimes in edge cases backend will send back `HIT_SUNK` for a hit condition instead of `HIT`. Have not spent the time to investigate all the way as to why.
 
 ## OTHER COMMENTS
 1. I spent about 25% of time planning out the layout and flow of the application. 
