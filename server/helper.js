@@ -1,3 +1,5 @@
+const e = require("express");
+
 exports.convertAlphaToNumeric = (char, col) => {
     switch(char) {
         case "A": col = 0;break;
@@ -113,7 +115,8 @@ exports.outOfBounds = (player, players, coordinate, ship, direction, turn, res) 
 }
 
 exports.determineResult = (playerGrid, req, result) => {
-    console.log(playerGrid)
+    markedTiles = playerGrid.filter(tile => tile.marked === true);
+    console.log('Currently Marked Tiles: ', markedTiles)
     if(playerGrid.findIndex((element) => element.tile === req.body.coordinate) > -1) {
         console.log("found element")
         let idx = playerGrid.findIndex((element) => element.tile === req.body.coordinate)
@@ -158,3 +161,47 @@ exports.determineResult = (playerGrid, req, result) => {
         return [result, playerGrid]
     }
 }
+
+exports.resetMockDb = () => {
+    return [player1Grid, player1Ships, player2Grid, player2Ships]
+}
+
+// THIS IS NOT OPTIMAL OR BEST PRACTICE I WOULD NOT DO THIS IN A PRODUCTION ENVIRONMENT
+let player1Ships = [
+    {type: "carrier",length: 5},
+    {type: "battleship",length: 4},
+    {type: "cruiser",length: 3},
+    {type: "submarine",length: 3},
+    {type: "destroyer",length: 2}
+]
+let player2Ships = [
+    {type: "carrier",length: 5},
+    {type: "battleship",length: 4},
+    {type: "cruiser",length: 3},
+    {type: "submarine",length: 3},
+    {type: "destroyer",length: 2}
+]
+let player1Grid = [
+    {tile:"A0",marked:false,hit:-1,direction:"",ship:""},{tile:"A1",marked:false,hit:-1,direction:"",ship:""},{tile:"A2",marked:false,hit:-1,direction:"",ship:""},{tile:"A3",marked:false,hit:-1,direction:"",ship:""},{tile:"A4",marked:false,hit:-1,direction:"",ship:""},{tile:"A5",marked:false,hit:-1,direction:"",ship:""},{tile:"A6",marked:false,hit:-1,direction:"",ship:""},{tile:"A7",marked:false,hit:-1,direction:"",ship:""},{tile:"A8",marked:false,hit:-1,direction:"",ship:""},{tile:"A9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"B0",marked:false,hit:-1,direction:"",ship:""},{tile:"B1",marked:false,hit:-1,direction:"",ship:""},{tile:"B2",marked:false,hit:-1,direction:"",ship:""},{tile:"B3",marked:false,hit:-1,direction:"",ship:""},{tile:"B4",marked:false,hit:-1,direction:"",ship:""},{tile:"B5",marked:false,hit:-1,direction:"",ship:""},{tile:"B6",marked:false,hit:-1,direction:"",ship:""},{tile:"B7",marked:false,hit:-1,direction:"",ship:""},{tile:"B8",marked:false,hit:-1,direction:"",ship:""},{tile:"B9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"C0",marked:false,hit:-1,direction:"",ship:""},{tile:"C1",marked:false,hit:-1,direction:"",ship:""},{tile:"C2",marked:false,hit:-1,direction:"",ship:""},{tile:"C3",marked:false,hit:-1,direction:"",ship:""},{tile:"C4",marked:false,hit:-1,direction:"",ship:""},{tile:"C5",marked:false,hit:-1,direction:"",ship:""},{tile:"C6",marked:false,hit:-1,direction:"",ship:""},{tile:"C7",marked:false,hit:-1,direction:"",ship:""},{tile:"C8",marked:false,hit:-1,direction:"",ship:""},{tile:"C9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"D0",marked:false,hit:-1,direction:"",ship:""},{tile:"D1",marked:false,hit:-1,direction:"",ship:""},{tile:"D2",marked:false,hit:-1,direction:"",ship:""},{tile:"D3",marked:false,hit:-1,direction:"",ship:""},{tile:"D4",marked:false,hit:-1,direction:"",ship:""},{tile:"D5",marked:false,hit:-1,direction:"",ship:""},{tile:"D6",marked:false,hit:-1,direction:"",ship:""},{tile:"D7",marked:false,hit:-1,direction:"",ship:""},{tile:"D8",marked:false,hit:-1,direction:"",ship:""},{tile:"D9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"E0",marked:false,hit:-1,direction:"",ship:""},{tile:"E1",marked:false,hit:-1,direction:"",ship:""},{tile:"E2",marked:false,hit:-1,direction:"",ship:""},{tile:"E3",marked:false,hit:-1,direction:"",ship:""},{tile:"E4",marked:false,hit:-1,direction:"",ship:""},{tile:"E5",marked:false,hit:-1,direction:"",ship:""},{tile:"E6",marked:false,hit:-1,direction:"",ship:""},{tile:"E7",marked:false,hit:-1,direction:"",ship:""},{tile:"E8",marked:false,hit:-1,direction:"",ship:""},{tile:"E9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"F0",marked:false,hit:-1,direction:"",ship:""},{tile:"F1",marked:false,hit:-1,direction:"",ship:""},{tile:"F2",marked:false,hit:-1,direction:"",ship:""},{tile:"F3",marked:false,hit:-1,direction:"",ship:""},{tile:"F4",marked:false,hit:-1,direction:"",ship:""},{tile:"F5",marked:false,hit:-1,direction:"",ship:""},{tile:"F6",marked:false,hit:-1,direction:"",ship:""},{tile:"F7",marked:false,hit:-1,direction:"",ship:""},{tile:"F8",marked:false,hit:-1,direction:"",ship:""},{tile:"F9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"G0",marked:false,hit:-1,direction:"",ship:""},{tile:"G1",marked:false,hit:-1,direction:"",ship:""},{tile:"G2",marked:false,hit:-1,direction:"",ship:""},{tile:"G3",marked:false,hit:-1,direction:"",ship:""},{tile:"G4",marked:false,hit:-1,direction:"",ship:""},{tile:"G5",marked:false,hit:-1,direction:"",ship:""},{tile:"G6",marked:false,hit:-1,direction:"",ship:""},{tile:"G7",marked:false,hit:-1,direction:"",ship:""},{tile:"G8",marked:false,hit:-1,direction:"",ship:""},{tile:"G9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"H0",marked:false,hit:-1,direction:"",ship:""},{tile:"H1",marked:false,hit:-1,direction:"",ship:""},{tile:"H2",marked:false,hit:-1,direction:"",ship:""},{tile:"H3",marked:false,hit:-1,direction:"",ship:""},{tile:"H4",marked:false,hit:-1,direction:"",ship:""},{tile:"H5",marked:false,hit:-1,direction:"",ship:""},{tile:"H6",marked:false,hit:-1,direction:"",ship:""},{tile:"H7",marked:false,hit:-1,direction:"",ship:""},{tile:"H8",marked:false,hit:-1,direction:"",ship:""},{tile:"H9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"I0",marked:false,hit:-1,direction:"",ship:""},{tile:"I1",marked:false,hit:-1,direction:"",ship:""},{tile:"I2",marked:false,hit:-1,direction:"",ship:""},{tile:"I3",marked:false,hit:-1,direction:"",ship:""},{tile:"I4",marked:false,hit:-1,direction:"",ship:""},{tile:"I5",marked:false,hit:-1,direction:"",ship:""},{tile:"I6",marked:false,hit:-1,direction:"",ship:""},{tile:"I7",marked:false,hit:-1,direction:"",ship:""},{tile:"I8",marked:false,hit:-1,direction:"",ship:""},{tile:"I9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"J0",marked:false,hit:-1,direction:"",ship:""},{tile:"J1",marked:false,hit:-1,direction:"",ship:""},{tile:"J2",marked:false,hit:-1,direction:"",ship:""},{tile:"J3",marked:false,hit:-1,direction:"",ship:""},{tile:"J4",marked:false,hit:-1,direction:"",ship:""},{tile:"J5",marked:false,hit:-1,direction:"",ship:""},{tile:"J6",marked:false,hit:-1,direction:"",ship:""},{tile:"J7",marked:false,hit:-1,direction:"",ship:""},{tile:"J8",marked:false,hit:-1,direction:"",ship:""},{tile:"J9",marked:false,hit:-1,direction:"",ship:""},
+]
+let player2Grid = [
+    {tile:"A0",marked:false,hit:-1,direction:"",ship:""},{tile:"A1",marked:false,hit:-1,direction:"",ship:""},{tile:"A2",marked:false,hit:-1,direction:"",ship:""},{tile:"A3",marked:false,hit:-1,direction:"",ship:""},{tile:"A4",marked:false,hit:-1,direction:"",ship:""},{tile:"A5",marked:false,hit:-1,direction:"",ship:""},{tile:"A6",marked:false,hit:-1,direction:"",ship:""},{tile:"A7",marked:false,hit:-1,direction:"",ship:""},{tile:"A8",marked:false,hit:-1,direction:"",ship:""},{tile:"A9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"B0",marked:false,hit:-1,direction:"",ship:""},{tile:"B1",marked:false,hit:-1,direction:"",ship:""},{tile:"B2",marked:false,hit:-1,direction:"",ship:""},{tile:"B3",marked:false,hit:-1,direction:"",ship:""},{tile:"B4",marked:false,hit:-1,direction:"",ship:""},{tile:"B5",marked:false,hit:-1,direction:"",ship:""},{tile:"B6",marked:false,hit:-1,direction:"",ship:""},{tile:"B7",marked:false,hit:-1,direction:"",ship:""},{tile:"B8",marked:false,hit:-1,direction:"",ship:""},{tile:"B9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"C0",marked:false,hit:-1,direction:"",ship:""},{tile:"C1",marked:false,hit:-1,direction:"",ship:""},{tile:"C2",marked:false,hit:-1,direction:"",ship:""},{tile:"C3",marked:false,hit:-1,direction:"",ship:""},{tile:"C4",marked:false,hit:-1,direction:"",ship:""},{tile:"C5",marked:false,hit:-1,direction:"",ship:""},{tile:"C6",marked:false,hit:-1,direction:"",ship:""},{tile:"C7",marked:false,hit:-1,direction:"",ship:""},{tile:"C8",marked:false,hit:-1,direction:"",ship:""},{tile:"C9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"D0",marked:false,hit:-1,direction:"",ship:""},{tile:"D1",marked:false,hit:-1,direction:"",ship:""},{tile:"D2",marked:false,hit:-1,direction:"",ship:""},{tile:"D3",marked:false,hit:-1,direction:"",ship:""},{tile:"D4",marked:false,hit:-1,direction:"",ship:""},{tile:"D5",marked:false,hit:-1,direction:"",ship:""},{tile:"D6",marked:false,hit:-1,direction:"",ship:""},{tile:"D7",marked:false,hit:-1,direction:"",ship:""},{tile:"D8",marked:false,hit:-1,direction:"",ship:""},{tile:"D9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"E0",marked:false,hit:-1,direction:"",ship:""},{tile:"E1",marked:false,hit:-1,direction:"",ship:""},{tile:"E2",marked:false,hit:-1,direction:"",ship:""},{tile:"E3",marked:false,hit:-1,direction:"",ship:""},{tile:"E4",marked:false,hit:-1,direction:"",ship:""},{tile:"E5",marked:false,hit:-1,direction:"",ship:""},{tile:"E6",marked:false,hit:-1,direction:"",ship:""},{tile:"E7",marked:false,hit:-1,direction:"",ship:""},{tile:"E8",marked:false,hit:-1,direction:"",ship:""},{tile:"E9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"F0",marked:false,hit:-1,direction:"",ship:""},{tile:"F1",marked:false,hit:-1,direction:"",ship:""},{tile:"F2",marked:false,hit:-1,direction:"",ship:""},{tile:"F3",marked:false,hit:-1,direction:"",ship:""},{tile:"F4",marked:false,hit:-1,direction:"",ship:""},{tile:"F5",marked:false,hit:-1,direction:"",ship:""},{tile:"F6",marked:false,hit:-1,direction:"",ship:""},{tile:"F7",marked:false,hit:-1,direction:"",ship:""},{tile:"F8",marked:false,hit:-1,direction:"",ship:""},{tile:"F9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"G0",marked:false,hit:-1,direction:"",ship:""},{tile:"G1",marked:false,hit:-1,direction:"",ship:""},{tile:"G2",marked:false,hit:-1,direction:"",ship:""},{tile:"G3",marked:false,hit:-1,direction:"",ship:""},{tile:"G4",marked:false,hit:-1,direction:"",ship:""},{tile:"G5",marked:false,hit:-1,direction:"",ship:""},{tile:"G6",marked:false,hit:-1,direction:"",ship:""},{tile:"G7",marked:false,hit:-1,direction:"",ship:""},{tile:"G8",marked:false,hit:-1,direction:"",ship:""},{tile:"G9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"H0",marked:false,hit:-1,direction:"",ship:""},{tile:"H1",marked:false,hit:-1,direction:"",ship:""},{tile:"H2",marked:false,hit:-1,direction:"",ship:""},{tile:"H3",marked:false,hit:-1,direction:"",ship:""},{tile:"H4",marked:false,hit:-1,direction:"",ship:""},{tile:"H5",marked:false,hit:-1,direction:"",ship:""},{tile:"H6",marked:false,hit:-1,direction:"",ship:""},{tile:"H7",marked:false,hit:-1,direction:"",ship:""},{tile:"H8",marked:false,hit:-1,direction:"",ship:""},{tile:"H9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"I0",marked:false,hit:-1,direction:"",ship:""},{tile:"I1",marked:false,hit:-1,direction:"",ship:""},{tile:"I2",marked:false,hit:-1,direction:"",ship:""},{tile:"I3",marked:false,hit:-1,direction:"",ship:""},{tile:"I4",marked:false,hit:-1,direction:"",ship:""},{tile:"I5",marked:false,hit:-1,direction:"",ship:""},{tile:"I6",marked:false,hit:-1,direction:"",ship:""},{tile:"I7",marked:false,hit:-1,direction:"",ship:""},{tile:"I8",marked:false,hit:-1,direction:"",ship:""},{tile:"I9",marked:false,hit:-1,direction:"",ship:""},
+    {tile:"J0",marked:false,hit:-1,direction:"",ship:""},{tile:"J1",marked:false,hit:-1,direction:"",ship:""},{tile:"J2",marked:false,hit:-1,direction:"",ship:""},{tile:"J3",marked:false,hit:-1,direction:"",ship:""},{tile:"J4",marked:false,hit:-1,direction:"",ship:""},{tile:"J5",marked:false,hit:-1,direction:"",ship:""},{tile:"J6",marked:false,hit:-1,direction:"",ship:""},{tile:"J7",marked:false,hit:-1,direction:"",ship:""},{tile:"J8",marked:false,hit:-1,direction:"",ship:""},{tile:"J9",marked:false,hit:-1,direction:"",ship:""},
+]

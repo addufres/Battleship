@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { OperatorFunction, Observable } from 'rxjs';
 import { DataService } from 'src/app/data.service';
-import {debounceTime, distinctUntilChanged, map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-game',
@@ -137,14 +135,6 @@ export class GameComponent implements OnInit {
     })
   }
 
-  search: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
-  text$.pipe(
-    debounceTime(200),
-    distinctUntilChanged(),
-    map(term => term.length < 2 ? []
-      : this.grid.filter(v => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10))
-  )
-
   createBoard(grid, squares, player) {
     for (let i = 0; i < 100; i++) {
       const square = document.createElement('div')
@@ -211,11 +201,47 @@ export class GameComponent implements OnInit {
 
   playerTurn(model: any): void {
     model.player = this.game.player;
+    // determine which player is firing
+    let localPlayer = {name: "", number: 0};
+    if(this.game.player === this.players[1]) {
+      localPlayer.name = this.game.player;
+      localPlayer.number = 2; // pass in the opposing players number to flip their grid square
+    } else {
+      localPlayer.name = this.players[2];
+      localPlayer.number = 1;
+    }
     this.dataService.postPlayerTurn(model,this.game).subscribe(data => {
-        if(data.result === "hit_good_game") alert(`${model.player} WON! GOOD GAME!`)
-        this.game.player = data.player;
+        this.determineOutcome(data.result, localPlayer, model.coordinate);
+        this.game.player = data.next_player;
         this.playModel = {coordinate: "", player: ""};
     })
+  }
+
+  determineOutcome(result: any, player: any, coordinate: string): void {
+    if(result === "hit_good_game") {
+      alert(`${player.name} WON! GOOD GAME!`)
+      let shipDivStartingPoint = document.querySelector(`#player${player.number}-${coordinate}`);
+      shipDivStartingPoint.classList.add('hit');
+      shipDivStartingPoint.classList.remove('filled');
+    }
+    if(result === "hit") {
+      alert(`${player.name} MADE A HIT AT ${coordinate}!`)
+      let shipDivStartingPoint = document.querySelector(`#player${player.number}-${coordinate}`);
+      shipDivStartingPoint.classList.add('hit');
+      shipDivStartingPoint.classList.remove('filled');
+    }
+    if(result === "hit_sunk") {
+      alert(`${player.name} MADE A HIT AT ${coordinate} AND SUNK A SHIP!`)
+      let shipDivStartingPoint = document.querySelector(`#player${player.number}-${coordinate}`);
+      shipDivStartingPoint.classList.add('hit');
+      shipDivStartingPoint.classList.remove('filled');
+    }
+    if(result === "miss") {
+      alert(`${player.name} MISSED AT ${coordinate}`)
+      let shipDivStartingPoint = document.querySelector(`#player${player.number}-${coordinate}`);
+      shipDivStartingPoint.classList.add('miss');
+      shipDivStartingPoint.classList.remove('filled');
+    }
   }
 
 }
