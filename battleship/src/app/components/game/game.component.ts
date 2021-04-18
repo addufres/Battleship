@@ -101,12 +101,20 @@ export class GameComponent implements OnInit {
     this.dataService.postSetup(model, this.game.session_id).subscribe(data => {
       if(data) {
         if(this.game.player === this.players[1]) {
-          this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 1);
-          this.player1moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
+          if(this.player1ships.length === 1) {
+            this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 1, true);
+            this.player1moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: true});
+          } else {
+            this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 1);
+            this.player1moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
+          }
         } else {
           if(this.player2ships.length === 1) {
             this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 2, true);
             this.player2moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: true});
+          } else if(this.player1ships.length === 1) {
+            this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 1, true);
+            this.player1moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: true});
           } else {
             this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 2);
             this.player2moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
