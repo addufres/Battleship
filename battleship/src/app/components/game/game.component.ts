@@ -14,9 +14,11 @@ export class GameComponent implements OnInit {
   players = {1: "", 2: ""};
   setupModel = {ship: "", coordinate: "", direction: "", player: ""};
   game = {session_id: "", phase: "", player: ""};
+  playModel = {coordinate: "", player: ""};
   created = false;
   inPlay = false;
   setup = false;
+  gameOver = true;
   player1ships = ["carrier","battleship","cruiser","submarine","destroyer"];
   player2ships = ["carrier","battleship","cruiser","submarine","destroyer"];
   directions = ["down", "right"];
@@ -58,6 +60,7 @@ export class GameComponent implements OnInit {
           "I0","I1","I2","I3","I4","I5","I6","I7","I8","I9",
           "J0","J1","J2","J3","J4","J5","J6","J7","J8","J9",]
   dictionary = ['A','B','C','D','E','F','G','H','I','J']
+
   constructor(private dataService: DataService) { }
 
   ngOnInit() {
@@ -74,7 +77,6 @@ export class GameComponent implements OnInit {
     this.dataService.postNewGame(model).subscribe(data =>{
       if(data) {
         this.setup = true;
-        console.log(data)
         this.game = data;
         let player1grid = document.querySelector('.grid-player1')
         let player2grid = document.querySelector('.grid-player2')
@@ -90,10 +92,6 @@ export class GameComponent implements OnInit {
 
   setupPlayer(model: any) {
     model.player = this.game.player;
-    console.log(this.player1board)
-    console.log(this.player2board)
-    console.log(model)
-    console.log(this.shipDirections[model.ship][model.direction])
     const currDir = this.shipDirections[model.ship][model.direction]
     let filled;
     let currentSpot = this.grid.indexOf(model.coordinate);
@@ -104,7 +102,6 @@ export class GameComponent implements OnInit {
     }
     this.dataService.postSetup(model, this.game.session_id).subscribe(data => {
       if(data) {
-        console.log(data)
         if(this.game.player === this.players[1]) {
           this.paintShips(model.ship, model.coordinate, model.direction, data.placed, 1);
           this.player1moves.push({ship: model.ship, coordinate: model.coordinate, direction: model.direction, placed: data.placed});
@@ -206,6 +203,19 @@ export class GameComponent implements OnInit {
       case "destroyer": length = 2;break;
     }
     return length;
+  }
+
+  onSubmitShot(): void {
+    this.playerTurn(this.playModel);
+  }
+
+  playerTurn(model: any): void {
+    model.player = this.game.player;
+    this.dataService.postPlayerTurn(model,this.game).subscribe(data => {
+        if(data.result === "hit_good_game") alert(`${model.player} WON! GOOD GAME!`)
+        this.game.player = data.player;
+        this.playModel = {coordinate: "", player: ""};
+    })
   }
 
 }

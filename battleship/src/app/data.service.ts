@@ -16,4 +16,10 @@ export class DataService {
   postSetup(data: any, session_id: string): Observable<any> {
     return this.http.post(`http://localhost:3000/games/${session_id}/setup`, data);
   }
+
+  postPlayerTurn(model: any, game: any): Observable<any> {
+    let data = model;
+    return this.http.post(`http://localhost:3000/games/${game.session_id}/play`, data);
+  }
+
 }

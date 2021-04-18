@@ -22,13 +22,12 @@
 .grid-player1 {
     width: 400px;
     height: 400px;
-    display: flex;
-    flex-wrap: wrap;
+    height: width;
+    display: flex!important;
+    flex-wrap: wrap!important;
     background-color: rgb(114, 114, 156);
     margin: 20px;
 }
-
-
 
 .grid-player2 {
     width: 400px;
@@ -37,4 +36,17 @@
     flex-wrap: wrap;
     background-color: rgb(114, 114, 156);
     margin: 20px;
+}
+
+.player-highlight {
+    background-color: rgb(223, 223, 223);
+    border-radius: 5%;
+}
+
+.slim {
+    width: auto;
+}
+
+.give-space {
+    margin-left: 5vw;
 }

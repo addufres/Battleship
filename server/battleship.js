@@ -66,7 +66,13 @@ let player2Ships = [
     }
 ]
 let player1Grid = [
-    {tile:"A0",marked:false,hit:-1,direction:"",ship:""},
+    {
+        tile:"A0",
+        marked:false,
+        hit:-1,
+        direction:"",
+        ship:""
+    },
     {tile:"A1",marked:false,hit:-1,direction:"",ship:""},
     {tile:"A2",marked:false,hit:-1,direction:"",ship:""},
     {tile:"A3",marked:false,hit:-1,direction:"",ship:""},
@@ -299,16 +305,16 @@ app.get('/games/:session_id', (req, res) => {
 });
 
 // Test call
-app.get('/games/grid/:player',(req, res) =>{
-    if(req.params.player === 1)res.json(player1Grid)
-    else res.json(player2Grid)
-})
+app.get('/games/:session_id/grid',(req, res) =>{
+    // if(req.params.player === 1)res.send(player1Grid)
+    res.send(player1Grid)
+});
 
 // Test call
-app.get('/games/ships/:player',(req, res) =>{
-    if(req.params.player === 1)res.json(player1Ships)
-    else res.json(player1Ships)
-})
+app.get('/games/:session_id/ships',(req, res) =>{
+    // if(req.params.player === 1)res.send(player1Grid)
+    res.send(player1Ships)
+});
 
 /** POST setup board 
  * Alternating post calls from each player to submit request for placement of ship.
@@ -349,10 +355,8 @@ app.post('/games/:session_id/setup', (req, res) => {
         if(ship === "cruiser") length = 3;
         if(ship === "submarine") length = 3;
         if(ship === "destroyer") length = 2;
-    
         // check that coordinate given is within the grid
         // and that we have the correct session_id for the game
-        // console.log(`checking if ${colCondition} && ${rowCondition} && ${sessionId} === ${game.session_id}`)
         if(colCondition && rowCondition && (sessionId === game.session_id)) {
             // check that ship would fit with direction
             if(direction === "right") {
@@ -361,9 +365,9 @@ app.post('/games/:session_id/setup', (req, res) => {
                 if(col + length > 10) { // column location plus length of ship is wider than grid
                     helper.outOfBounds(player, players, coordinate, ship, direction, turn, res);
                 } else { // it will fit facing right so perform logic to add ship to board and remove from pile
-                    console.log(`Player ${player}...chose coordinate ${coordinate}...with ship ${ship} facing ${direction}`)
+                    console.log(`${player}...chose coordinate ${coordinate}...with ship ${ship} facing ${direction}`)
                     if(player === players.player1) {
-                        console.log(`Player 1 has ${player1Ships.length} ships left in their shipyard.`)
+                        console.log(`${player} has ${player1Ships.length} ships left in their shipyard.`)
                         if(player1Ships.length > 0) {
                             console.log(`Performing search on ${player}'s grid for the chosen coordinate`);
                             let results = helper.handleShips(res, column, row, coordinate, ship, player1Grid, player1Ships, player2Ships, players, player, direction, length)
@@ -372,7 +376,7 @@ app.post('/games/:session_id/setup', (req, res) => {
                             player1Grid = results[2]
                         }
                     } else {
-                        console.log(`Player 2 has ${player2Ships.length} ships left in their shipyard.`)
+                        console.log(`${player} has ${player2Ships.length} ships left in their shipyard.`)
                         if(player2Ships.length > 0) {
                             console.log(`Performing search on ${player}'s grid for the chosen coordinate`);
                             let results = helper.handleShips(res, column, row, coordinate, ship, player2Grid, player2Ships, player1Ships, players, player, direction, length)
@@ -388,9 +392,9 @@ app.post('/games/:session_id/setup', (req, res) => {
                 if(numericRow + length > 10) { // column location plus length of ship is wider than grid
                     helper.outOfBounds(player, players, coordinate, ship, direction, turn, res);
                 } else { // it will fit facing down so perform logic to add ship to board and remove from pile
-                    console.log(`Player ${player}...chose coordinate ${coordinate}...with ship ${ship} facing ${direction}`)
+                    console.log(`${player}...chose coordinate ${coordinate}...with ship ${ship} facing ${direction}`)
                     if(player === players.player1) {
-                        console.log(`Player 1 has ${player1Ships.length} ships left in their shipyard.`)
+                        console.log(`${player} has ${player1Ships.length} ships left in their shipyard.`)
                         if(player1Ships.length > 0) {
                             console.log(`Performing search on ${player}'s grid for the chosen coordinate`);
                             let results = helper.handleShips(res, column, row, coordinate, ship, player1Grid, player1Ships, player2Ships, players, player, direction, length)
@@ -399,7 +403,7 @@ app.post('/games/:session_id/setup', (req, res) => {
                             player1Grid = results[2]
                         }
                     } else {
-                        console.log(`Player 2 has ${player2Ships.length} ships left in their shipyard.`)
+                        console.log(`${player} has ${player2Ships.length} ships left in their shipyard.`)
                         if(player2Ships.length > 0) {
                             console.log(`Performing search on ${player}'s grid for the chosen coordinate`);
                             let results = helper.handleShips(res, column, row, coordinate, ship, player2Grid, player1Ships, player1Ships, players, player, direction, length)
@@ -421,6 +425,7 @@ app.post('/games/:session_id/setup', (req, res) => {
             }
         }
     } else {
+        console.log("Unable to place ship in selected space.")
         if(req.body.player === players.player1) {
             turn = "player_two";
             res.send({"placed": false, "next_player": players.player2, "phase": "setup"})
@@ -428,15 +433,24 @@ app.post('/games/:session_id/setup', (req, res) => {
             turn = "player_one";
             res.send({"placed": false, "next_player": players.player1, "phase": "setup"})
         }
-    }
-    
+    } 
 });
 
 /**
- * Request:{“coordinate”:“A0”,“player”:“<player_name>”}
- * Response:{“result”:“hit|miss|hit_sunk|hit_good_game|not_your_turn|game_over”,“next_player”:“<next_player>”}
+ * Request:{“coordinate”:“A0”,“player”:“<player_name>”} last to conditions will be used same as hit-gg and miss 
+ * Response:{“result”:“hit|miss|hit_sunk|hit_good_game”,“next_player”:“<next_player>”}
  */
 app.post('/games/:session_id/play', (req, res) => {
-
-})
-
+    let result;
+    if(players.player1 === req.body.player) {
+        let resultArr = helper.determineResult(player2Grid, req, result); 
+        result = resultArr[0];
+        player2Grid = resultArr[1];
+        res.send({"result":result,"next_player":players.player2})
+    } else {
+        let resultArr = helper.determineResult(player1Grid, req, result); 
+        result = resultArr[0];
+        player1Grid = resultArr[1];
+        res.send({"result":result,"next_player":players.player1})
+    }
+});
